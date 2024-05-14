@@ -8,6 +8,9 @@
 
 int MAX_ITER = 200; // Default value
 
+// Cache to store Mandelbrot set calculations
+int *mandelbrot_cache;
+
 // Function to compute the Mandelbrot set
 int mandelbrot(double x0, double y0) {
     double x = 0.0;
@@ -42,7 +45,15 @@ void draw_mandelbrot(SDL_Renderer *renderer, double x_min, double x_max, double 
             double x0 = x_min + (x_max - x_min) * px / WIDTH;
             double y0 = y_min + (y_max - y_min) * py / HEIGHT;
 
-            int iter = mandelbrot(x0, y0);
+            int cache_index = py * WIDTH + px;
+            int iter;
+            if (mandelbrot_cache[cache_index] != -1) {
+                iter = mandelbrot_cache[cache_index];
+            } else {
+                iter = mandelbrot(x0, y0);
+                mandelbrot_cache[cache_index] = iter;
+            }
+
             Uint8 r, g, b;
             get_color(iter, MAX_ITER, &r, &g, &b);
 
@@ -52,10 +63,19 @@ void draw_mandelbrot(SDL_Renderer *renderer, double x_min, double x_max, double 
     }
 }
 
+void clear_cache() {
+    for (int i = 0; i < WIDTH * HEIGHT; i++) {
+        mandelbrot_cache[i] = -1; // Reset cache to uncomputed state
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         MAX_ITER = atoi(argv[1]);
     }
+
+    mandelbrot_cache = (int *)malloc(WIDTH * HEIGHT * sizeof(int));
+    clear_cache();
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "Could not initialize SDL: %s\n", SDL_GetError());
@@ -70,6 +90,7 @@ int main(int argc, char *argv[]) {
     if (!window) {
         fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
         SDL_Quit();
+        free(mandelbrot_cache);
         return 1;
     }
 
@@ -78,6 +99,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
+        free(mandelbrot_cache);
         return 1;
     }
 
@@ -114,6 +136,8 @@ int main(int argc, char *argv[]) {
                     y_min = y_center - y_span / 2;
                     y_max = y_center + y_span / 2;
 
+                    clear_cache(); // Clear cache before redrawing
+
                     draw_mandelbrot(renderer, x_min, x_max, y_min, y_max);
                     SDL_RenderPresent(renderer);
                 }
@@ -124,6 +148,7 @@ int main(int argc, char *argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    free(mandelbrot_cache);
 
     return 0;
 }
