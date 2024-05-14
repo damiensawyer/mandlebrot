@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
                     double x_center = x_min + (x_max - x_min) * mx / WIDTH;
                     double y_center = y_min + (y_max - y_min) * my / HEIGHT;
 
-                    double zoom_factor = 0.1; // Faster zoom
+                    double zoom_factor = 0.2; // Faster zoom
                     double x_span = (x_max - x_min) * zoom_factor;
                     double y_span = (y_max - y_min) * zoom_factor;
 
