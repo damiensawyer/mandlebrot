@@ -5,7 +5,8 @@
 
 #define WIDTH 800
 #define HEIGHT 800
-#define MAX_ITER 200 // Making this larger is slower but more accurate. 
+
+int MAX_ITER = 200; // Default value
 
 // Function to compute the Mandelbrot set
 int mandelbrot(double x0, double y0) {
@@ -52,6 +53,10 @@ void draw_mandelbrot(SDL_Renderer *renderer, double x_min, double x_max, double 
 }
 
 int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        MAX_ITER = atoi(argv[1]);
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "Could not initialize SDL: %s\n", SDL_GetError());
         return 1;
