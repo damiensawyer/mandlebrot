@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
-#include <math.h>
 
-#define WIDTH 800
-#define HEIGHT 800
+#define WIDTH 1000   
+#define HEIGHT 1000
 
 int MAX_ITER = 200; // Default value
 
@@ -140,6 +139,22 @@ int main(int argc, char *argv[]) {
 
                     draw_mandelbrot(renderer, x_min, x_max, y_min, y_max);
                     SDL_RenderPresent(renderer);
+                }
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_q) {
+                    running = 0; // Quit on 'Q' key press
+                } else
+                {
+                // Reset zoom to initial values on any key press
+                x_min = -2.0;
+                x_max = 2.0;
+                y_min = -2.0;
+                y_max = 2.0;
+
+                clear_cache(); // Clear cache before redrawing
+
+                draw_mandelbrot(renderer, x_min, x_max, y_min, y_max);
+                SDL_RenderPresent(renderer);
                 }
             }
         }
